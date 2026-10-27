@@ -4,10 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Agent Lab Trading Card</title>
+    <meta name="description" content="Charlie G.'s AI Agent Lab trading card with a 10-second Click Rush mini game." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%8C%B1%3C/text%3E%3C/svg%3E" />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="page-shell">
+    <a class="skip-link" href="#main">Skip to the card</a>
+
+    <header class="site-header">
+      <a class="brand" href="index.html">Trading Card Lab</a>
+      <nav aria-label="Main">
+        <ul class="nav-list">
+          <li><a class="nav-link" href="index.html" aria-current="page">Card</a></li>
+          <li><a class="nav-link" href="help.html">How to Use</a></li>
+          <li><a class="nav-link" href="support.html">Support</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main class="page-shell" id="main" tabindex="-1">
       <div class="game-layout" id="gameLayout">
         <article class="trading-card" id="tradingCard" aria-label="Digital trading card">
           <div class="card-topbar">
@@ -67,13 +82,13 @@
           </div>
 
           <button class="click-button" id="clickButton" type="button">Start</button>
-          <p class="game-status" id="gameStatus">Click the button as fast as you can for 10 seconds. Beat your level target to win.</p>
+          <p class="game-status" id="gameStatus" aria-live="polite">Click the button as fast as you can for 10 seconds. Beat your level target to win.</p>
 
           <div class="start-dialog hidden" id="startDialog" role="dialog" aria-modal="true" aria-labelledby="startTitle">
             <div class="start-card">
               <p class="label">How to play</p>
               <h3 id="startTitle">Click Rush</h3>
-              <p>Press Start, then click as fast as you can for 10 seconds. Beat your current level to win.</p>
+              <p>Press Start, then click the button as fast as you can for 10 seconds. Beat your current level to win.</p>
               <button class="dialog-button" id="startGameButton" type="button">Start</button>
             </div>
           </div>
@@ -89,6 +104,18 @@
         </aside>
       </div>
     </main>
+
+    <div class="welcome-dialog hidden" id="welcomeDialog" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle" aria-describedby="welcomeText">
+      <div class="welcome-card">
+        <h2 id="welcomeTitle" tabindex="-1">Welcome!</h2>
+        <p id="welcomeText">Flip through my stats, then press <strong>Play</strong> to play a fun game! <br/><br/>You can navigate the page with a mouse, via touchscreen, or with a keyboard using the Tab, Enter, and Esc keys.</p>
+        <div class="welcome-actions">
+          <button class="dialog-button" id="welcomeStartButton" type="button">Let's go</button>
+          <a class="dialog-link" href="help.html">Read the guide first</a>
+        </div>
+        <label class="welcome-check"><input type="checkbox" id="welcomeHide" /> Don't show this again</label>
+      </div>
+    </div>
 
     <script src="script.js"></script>
   </body>
