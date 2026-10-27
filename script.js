@@ -12,10 +12,71 @@ const startDialog = document.getElementById('startDialog');
 const startGameButton = document.getElementById('startGameButton');
 const closeWinButton = document.getElementById('closeWinButton');
 const winMessage = document.getElementById('winMessage');
+const welcomeDialog = document.getElementById('welcomeDialog');
+const welcomeStartButton = document.getElementById('welcomeStartButton');
+const welcomeHide = document.getElementById('welcomeHide');
+const welcomeTitle = document.getElementById('welcomeTitle');
 
 const STORAGE_KEYS = {
   bestScore: 'ai-agent-lab-best-score',
-  level: 'ai-agent-lab-level'
+  level: 'ai-agent-lab-level',
+  hideWelcome: 'ai-agent-lab-hide-welcome'
+};
+
+// Remember what had focus before a dialog opened so we can hand it back.
+let lastFocus = null;
+
+const openDialog = (dialog, focusTarget) => {
+  if (!dialog) {
+    return;
+  }
+
+  if (dialog.classList.contains('hidden')) {
+    lastFocus = document.activeElement;
+  }
+
+  dialog.classList.remove('hidden');
+  (focusTarget || dialog.querySelector('button, a, input')).focus();
+};
+
+const closeDialog = (dialog, returnTarget) => {
+  if (!dialog || dialog.classList.contains('hidden')) {
+    return;
+  }
+
+  dialog.classList.add('hidden');
+  const target = returnTarget || lastFocus;
+
+  if (target && typeof target.focus === 'function') {
+    target.focus();
+  }
+};
+
+// Keep Tab inside whichever dialog is open, and let Esc close it.
+const trapFocus = (dialog, onEscape) => {
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onEscape();
+      return;
+    }
+
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const focusable = [...dialog.querySelectorAll('button, a[href], input')];
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && (document.activeElement === first || !focusable.includes(document.activeElement))) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 };
 
 const state = {
@@ -56,13 +117,11 @@ const resetRound = () => {
 };
 
 const closeWinDialog = () => {
-  winDialog.classList.add('hidden');
+  closeDialog(winDialog, clickButton);
 };
 
 const showStartDialog = () => {
-  if (startDialog) {
-    startDialog.classList.remove('hidden');
-  }
+  openDialog(startDialog, startGameButton);
 };
 
 const hideStartDialog = () => {
@@ -73,7 +132,27 @@ const hideStartDialog = () => {
 
 const showWinDialog = () => {
   winMessage.textContent = `You reached game level ${state.level}. Keep pushing your best score.`;
-  winDialog.classList.remove('hidden');
+  openDialog(winDialog, closeWinButton);
+};
+
+const readHideWelcome = () => {
+  try {
+    return localStorage.getItem(STORAGE_KEYS.hideWelcome) === '1';
+  } catch (error) {
+    return false;
+  }
+};
+
+const closeWelcome = () => {
+  if (welcomeHide && welcomeHide.checked) {
+    try {
+      localStorage.setItem(STORAGE_KEYS.hideWelcome, '1');
+    } catch (error) {
+      // Storage can be blocked; the pop-up just shows again next time.
+    }
+  }
+
+  closeDialog(welcomeDialog, playButton);
 };
 
 const finishRound = () => {
@@ -110,7 +189,7 @@ const startRound = () => {
     return;
   }
 
-  closeWinDialog();
+  winDialog.classList.add('hidden');
   hideStartDialog();
   state.isPlaying = true;
   state.score = 0;
@@ -159,14 +238,15 @@ if (playButton) {
       gameLayout.classList.add('active');
     }
 
+    winDialog.classList.add('hidden');
     showStartDialog();
-    closeWinDialog();
   });
 }
 
 if (startGameButton) {
   startGameButton.addEventListener('click', () => {
     startRound();
+    clickButton.focus();
   });
 }
 
@@ -186,6 +266,29 @@ if (closeWinButton) {
   closeWinButton.addEventListener('click', closeWinDialog);
 }
 
+if (welcomeStartButton) {
+  welcomeStartButton.addEventListener('click', closeWelcome);
+}
+
+if (welcomeDialog) {
+  trapFocus(welcomeDialog, closeWelcome);
+}
+
+if (startDialog) {
+  trapFocus(startDialog, () => closeDialog(startDialog, playButton));
+}
+
+if (winDialog) {
+  trapFocus(winDialog, closeWinDialog);
+}
+
 updateLevelDisplay();
 updateBestDisplay();
 resetRound();
+
+// Welcome message: shown on load unless the visitor opted out (?welcome always shows it).
+const forceWelcome = new URLSearchParams(window.location.search).has('welcome');
+
+if (welcomeDialog && (forceWelcome || !readHideWelcome())) {
+  openDialog(welcomeDialog, welcomeTitle);
+}
