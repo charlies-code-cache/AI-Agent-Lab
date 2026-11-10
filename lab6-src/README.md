@@ -1,6 +1,6 @@
 # Trading Card Lab (React)
 
-Charlie Gray, CSEN 163L, Lab 6 Part 2 (folder named `gray_charlie_lab7` as the slides ask).
+Charlie Gray, CSEN 163L, Lab 6 Part 2.
 
 My Lab 4 trading card site rebuilt with **React** (set up with **Vite**) and **React Router**. It has the same three
 pages and the same look and accessibility features as Lab 4:
